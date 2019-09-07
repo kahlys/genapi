@@ -12,7 +12,7 @@ With a correctly configured [Go toolchain](https://golang.org/doc/install):
 
 ```sh
 $ git clone github.com/kahlys/genapi/
-$ cd proxy
+$ cd genapi
 $ make install
 ```
 
