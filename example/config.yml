@@ -1,0 +1,8 @@
+ServiceName: "booker"
+Endpoints:
+  - Name: "Book"
+    Method: "GET"
+    URL: "/api/book"
+  - Name: "SaveBook"
+    Method: "POST"
+    URL: "/api/book"
