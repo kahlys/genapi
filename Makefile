@@ -9,10 +9,6 @@ build:
 install:
 	go install ./cmd/genapi/
 
-## run: Build and run the binary.
-run:
-	go run cmd/genapi/*.go
-
 ## lint: Run linter on source code.
 lint:
 	golangci-lint run --exclude-use-default=false --disable "errcheck" --enable "goconst,goimports,golint,gofmt" ./...
