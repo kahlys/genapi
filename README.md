@@ -18,37 +18,23 @@ $ make install
 
 # Usage
 
-Global configuration. The _service name_ will be the name of the structure for the microservices.
+Write Rest API description in a configuration file.
 
-```sh
->>> config
-Configure service
-Service name: Booker
-Destination directory: booker
+```yml
+ServiceName: "booker"
+Endpoints:
+  - Name: "GetBook"
+    URL: "/api/book/{id}"
+    Method: "GET"
+  - Name: "SetBook"
+    URL: "/api/book"
+    Method: "POST"
 ```
 
-Add endpoints. The _name_ will be used to give a name to function.
+Run to generate your files by giving the path to the configuration file, and the output directory path.
 
 ```sh
->>> add
-Add an endpoint
-Name: GetBook
-URL: /api/book/{id}
-Method: GET
-Adding book : GET /api/book/{id}
-
->>> add
-Add an endpoint
-Name: SetBook
-URL: /api/book
-Method: POST
-Adding setBook : POST /api/book
-```
-
-Run to generate your files. An error message will be printed if athe operation failed.
-
-```sh
->>> run
+$ genapi -config ./example/config.yml - dir mydir
 ```
 
 Generated files in this example are
