@@ -1,0 +1,37 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.29
+          args: --exclude-use-default=false --disable=errcheck,staticcheck --enable=goconst,goimports,golint,gofmt
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: install go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: build genapi
+        run: go build -v -o genapi -ldflags "-X main.version=$(shell git describe --tags --always)" cmd/genapi/*.go
+      - name: upload artifact genapi
+        uses: actions/upload-artifact@master
+        with:
+          name: genapi
+          path: genapi

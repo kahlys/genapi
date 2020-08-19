@@ -135,7 +135,7 @@ func writeHandler(pkg, name string, methods ...Endpoint) ([]byte, error) {
 			return []byte{}, err
 		}
 	}
-	endpoints = append(endpoints, fmt.Sprintf("return r"))
+	endpoints = append(endpoints, "return r")
 
 	// write Handler method
 	meth := Method{

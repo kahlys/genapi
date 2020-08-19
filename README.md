@@ -1,7 +1,7 @@
 # kahlys/genapi
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/kahlys/genapi)](https://pkg.go.dev/github.com/kahlys/genapi)
-[![build](https://api.travis-ci.org/kahlys/genapi.svg?branch=master)](https://travis-ci.org/kahlys/genapi)
+![build](https://github.com/kahlys/genapi/workflows/build/badge.svg)
 [![go report](https://goreportcard.com/badge/github.com/kahlys/genapi)](https://goreportcard.com/report/github.com/kahlys/genapi)
 
 Quick golang code generation for rest api microservices using gorilla mux.
