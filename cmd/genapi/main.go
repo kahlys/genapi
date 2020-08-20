@@ -13,10 +13,8 @@ import (
 
 // flags
 var (
-	version  = "undefined"
-	fversion = flag.Bool("version", false, "print server version")
-	fconfig  = flag.String("config", "", "configuration file path")
-	fdir     = flag.String("dir", "", "output directory")
+	fconfig = flag.String("config", "", "configuration file path")
+	fdir    = flag.String("dir", "", "output directory")
 )
 
 // TODO add database structure (optional)
@@ -42,10 +40,7 @@ func verifyConfig() error {
 
 func main() {
 	flag.Parse()
-	if *fversion {
-		fmt.Println(version)
-		return
-	}
+
 	// configuration
 	if err := parseConfig(); err != nil {
 		log.Fatal("unable to parse configuration file:", err)

@@ -22,7 +22,7 @@ type Endpoint struct {
 	Method string
 }
 
-// Generate ...
+// Generate the output code in given directory
 func (d RestAPI) Generate(dir string) error {
 	pkgname := strings.ToLower(d.ServiceName)
 
@@ -72,7 +72,7 @@ func writeService(pkg, name string, methods ...Endpoint) ([]byte, error) {
 	buf := bytes.NewBufferString(fmt.Sprintf("package %v\n", pkg))
 
 	// write structure
-	t := Structure{
+	t := structure{
 		Comments: fmt.Sprintf("%v ...", name),
 		Name:     name,
 	}
@@ -83,11 +83,13 @@ func writeService(pkg, name string, methods ...Endpoint) ([]byte, error) {
 	// write methods
 	for _, m := range methods {
 		funcname := strings.Title(strings.ToLower(m.Name))
-		meth := Method{
+		meth := method{
 			Recv: fmt.Sprintf("%v *%v", strings.Split(strings.ToLower(name), "")[0], name),
-			Function: Function{
+			function: function{
 				Comments: fmt.Sprintf("%v ...", funcname),
 				Name:     funcname,
+				Res:      []parameter{{"err", "error"}},
+				Content:  []string{"return nil"},
 			},
 		}
 		if err := tmplMethodes.Execute(buf, meth); err != nil {
@@ -119,16 +121,20 @@ func writeHandler(pkg, name string, methods ...Endpoint) ([]byte, error) {
 		funcname := fmt.Sprintf("handle%v", strings.Title(strings.ToLower(m.Name)))
 		recvName := strings.Split(strings.ToLower(name), "")[0]
 		endpoints = append(endpoints, fmt.Sprintf("r.HandleFunc(\"%s\", %s.%s).Methods(\"%v\")", m.URL, recvName, funcname, m.Method))
-		meth := Method{
+		meth := method{
 			Recv: fmt.Sprintf("%v *%v", recvName, name),
-			Function: Function{
+			function: function{
 				Comments: fmt.Sprintf("%v ...", funcname),
 				Name:     funcname,
-				Params: []Parameter{
+				Params: []parameter{
 					{Name: "w", Type: "http.ResponseWriter"},
 					{Name: "req", Type: "*http.Request"},
 				},
-				Content: []string{fmt.Sprintf("%v.%v()", recvName, strings.Title(strings.ToLower(m.Name)))},
+				Content: []string{
+					fmt.Sprintf("err := %v.%v()", recvName, strings.Title(strings.ToLower(m.Name))),
+					"if err != nil {http.Error(w, err.Error(),http.StatusInternalServerError,); return}",
+					"w.WriteHeader(http.StatusNotImplemented)",
+				},
 			},
 		}
 		if err := tmplMethodes.Execute(buf, meth); err != nil {
@@ -138,13 +144,13 @@ func writeHandler(pkg, name string, methods ...Endpoint) ([]byte, error) {
 	endpoints = append(endpoints, "return r")
 
 	// write Handler method
-	meth := Method{
+	meth := method{
 		Recv: fmt.Sprintf("%v *%v", strings.Split(strings.ToLower(name), "")[0], name),
-		Function: Function{
+		function: function{
 			Comments: fmt.Sprintf("Handler returns the %v HTTP Handler.", name),
 			Name:     "Handler",
 			Content:  endpoints,
-			Res:      []Parameter{{Type: "http.Handler"}},
+			Res:      []parameter{{Type: "http.Handler"}},
 		},
 	}
 	if err := tmplMethodes.Execute(buf, meth); err != nil {
@@ -161,32 +167,32 @@ func writeHandler(pkg, name string, methods ...Endpoint) ([]byte, error) {
 	return pretty, nil
 }
 
-// Method represents a method signature.
-type Method struct {
+// method represents a method signature.
+type method struct {
 	Recv string
-	Function
+	function
 }
 
-// Function represents a function signature.
-type Function struct {
+// function represents a function signature.
+type function struct {
 	Comments string
 	Name     string
-	Params   []Parameter
-	Res      []Parameter
+	Params   []parameter
+	Res      []parameter
 	Content  []string
 }
 
 // Parameter represents a parameter in a function or method signature.
-type Parameter struct {
+type parameter struct {
 	Name string
 	Type string
 }
 
 // Structure represents a type
-type Structure struct {
+type structure struct {
 	Comments string
 	Name     string
-	Fields   []Parameter
+	Fields   []parameter
 }
 
 const textMethods = "{{if .Comments}}// {{.Comments}}\n{{end}}" +
