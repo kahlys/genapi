@@ -35,6 +35,9 @@ func parseConfig() error {
 }
 
 func verifyConfig() error {
+	if *fdir == "" {
+		*fdir = strings.ToLower(restapi.ServiceName)
+	}
 	return nil
 }
 
