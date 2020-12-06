@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -23,20 +24,15 @@ type Endpoint struct {
 }
 
 // Generate the output code in given directory
-func (d RestAPI) Generate(dir string) error {
+func (d RestAPI) Generate() error {
 	pkgname := strings.ToLower(d.ServiceName)
-
-	// create destination directory
-	if err := os.Mkdir(dir, os.ModePerm); err != nil {
-		return fmt.Errorf("directory %v already exists", dir)
-	}
 
 	// Service
 	service, err := writeService(pkgname, d.ServiceName, d.Endpoints...)
 	if err != nil {
 		return err
 	}
-	f, err := os.OpenFile(fmt.Sprintf("%v/service.go", dir), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filepath.Join(".", "service.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer f.Close()
 	if err != nil {
 		return err
@@ -51,7 +47,7 @@ func (d RestAPI) Generate(dir string) error {
 	if err != nil {
 		return err
 	}
-	fhandler, err := os.OpenFile(fmt.Sprintf("%v/handler.go", dir), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fhandler, err := os.OpenFile(filepath.Join(".", "handler.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer fhandler.Close()
 	if err != nil {
 		return err
