@@ -16,70 +16,28 @@ go get -u github.com/kahlys/genapi
 
 ## Usage
 
-Write Rest API description in a configuration file.
+Create a new project
+
+```bash
+genapi create <project_name>
+cd <project_name>
+```
+
+It will create a directory with a configuration file you will need to write.
 
 ```yml
-ServiceName: "booker"
+ServiceName: "<project_name>"
 Endpoints:
-  - Name: "GetBook"
-    URL: "/api/book/{id}"
+  - Name: "GetElem"
+    URL: "/api/elem/{id}"
     Method: "GET"
-  - Name: "SetBook"
-    URL: "/api/book"
+  - Name: "SetElem"
+    URL: "/api/elem/{id}"
     Method: "POST"
 ```
 
-Run to generate your files by giving the path to the configuration file, and the output directory path.
+In the project directory, after you write the configuration file, generate project files.
 
 ```bash
-genapi -config ./example/config.yml - dir mydir
-```
-
-Generated files in this example are
-
-```go
-// file service.go
-package main
-
-// Booker ...
-type Booker struct{}
-
-// GetBook ...
-func (b *Booker) GetBook() {
-    panic("not implemented")
-}
-
-// SetBook ...
-func (b *Booker) SetBook() {
-    panic("not implemented")
-}
-```
-
-```go
-// file handler.go
-package main
-
-import (
-    "net/http"
-
-    "github.com/gorilla/mux"
-)
-
-// handleGetBook ...
-func (b *Booker) handleGetBook(w http.ResponseWriter, req *http.Request) {
-    b.GetBook()
-}
-
-// handleSetBook ...
-func (b *Booker) handleSetBook(w http.ResponseWriter, req *http.Request) {
-    b.SetBook()
-}
-
-// Handler returns the Booker HTTP Handler.
-func (b *Booker) Handler() http.Handler {
-    r := mux.NewRouter()
-    r.HandleFunc("/api/book/{id}", b.handleGetBook).Methods("GET")
-    r.HandleFunc("/api/book", b.handleSetBook).Methods("POST")
-    return r
-}
+genapi init
 ```
