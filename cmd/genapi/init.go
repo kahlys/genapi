@@ -31,7 +31,7 @@ func runInitProject() error {
 		return err
 	}
 	if err := restapi.Generate(); err != nil {
-		panic(err)
+		return err
 	}
 	return nil
 }
