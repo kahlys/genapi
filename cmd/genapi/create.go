@@ -40,6 +40,7 @@ var createCmd = &cobra.Command{
 }
 
 const configText = `ServiceName: PROJECT_NAME
+ImportPath: "import/path/PROJECT_NAME"
 Endpoints:
   - Name: "GetElem"
     Method: "GET"

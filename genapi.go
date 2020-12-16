@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -13,6 +14,7 @@ import (
 // RestAPI description
 type RestAPI struct {
 	ServiceName string
+	ImportPath  string
 	Endpoints   []Endpoint
 }
 
@@ -25,7 +27,7 @@ type Endpoint struct {
 
 // Generate the output code in given directory
 func (d RestAPI) Generate() error {
-	pkgname := strings.ToLower(d.ServiceName)
+	pkgname := strings.ToLower(path.Base(d.ImportPath))
 
 	// Service
 	service, err := writeService(pkgname, d.ServiceName, d.Endpoints...)
@@ -53,6 +55,25 @@ func (d RestAPI) Generate() error {
 		return err
 	}
 	_, err = fhandler.Write(handler)
+	if err != nil {
+		return err
+	}
+
+	// Main
+	main, err := writeMain(d.ServiceName, d.ImportPath, pkgname)
+	if err != nil {
+		return err
+	}
+	err = os.Mkdir("cmd", os.ModePerm)
+	if err != nil {
+		return err
+	}
+	fmain, err := os.OpenFile(filepath.Join("cmd", "main.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer fhandler.Close()
+	if err != nil {
+		return err
+	}
+	_, err = fmain.Write(main)
 	if err != nil {
 		return err
 	}
@@ -161,6 +182,50 @@ func writeHandler(pkg, name string, methods ...Endpoint) ([]byte, error) {
 	}
 
 	return pretty, nil
+}
+
+func writeMain(projectName, importPath, importBase string) ([]byte, error) {
+
+	// todo use template
+	const srccode = `package main
+
+	import (
+		"log"
+		"net/http"
+		"time"
+	
+		"IMPORT_PATH"
+	)
+	
+	func main() {
+		service := IMPORT_BASE.SERVICE_NAME{}
+	
+		server := &http.Server{
+			Addr:         ":8080",
+			Handler:      service.Handler(),
+			ReadTimeout:  time.Minute,
+			WriteTimeout: time.Minute,
+			IdleTimeout:  time.Minute,
+		}
+	
+		log.Println("Starting service on", server.Addr)
+		err := server.ListenAndServe()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}`
+
+	res := strings.TrimSpace(strings.Replace(srccode, "IMPORT_PATH", importPath, -1))
+	res = strings.TrimSpace(strings.Replace(res, "SERVICE_NAME", strings.Title(strings.ToLower(projectName)), -1))
+	res = strings.TrimSpace(strings.Replace(res, "IMPORT_BASE", importBase, -1))
+
+	pretty, err := format.Source([]byte(res))
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return pretty, nil
+
 }
 
 // method represents a method signature.

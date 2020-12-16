@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/kahlys/genapi"
 	"github.com/spf13/cobra"
@@ -30,9 +31,20 @@ func runInitProject() error {
 	if err := parseConfig(); err != nil {
 		return err
 	}
+
+	// generate go source code
 	if err := restapi.Generate(); err != nil {
 		return err
 	}
+
+	// go module
+	if err := exec.Command("sh", "-c", fmt.Sprintf("go mod init %v", restapi.ImportPath)).Run(); err != nil {
+		return err
+	}
+	if err := exec.Command("sh", "-c", "go mod tidy").Run(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
