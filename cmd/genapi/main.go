@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -8,8 +11,8 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "genapi",
 		Short: "A generator for REST-API Applications",
-		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Help()
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
 		},
 	}
 
@@ -18,5 +21,9 @@ func main() {
 		initCmd,
 	)
 
-	rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		fmt.Println("FAILED: ", err)
+		os.Exit(1)
+	}
 }

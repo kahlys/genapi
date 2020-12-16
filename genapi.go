@@ -35,10 +35,10 @@ func (d RestAPI) Generate() error {
 		return err
 	}
 	f, err := os.OpenFile(filepath.Join(".", "service.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer f.Close()
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	_, err = f.Write(service)
 	if err != nil {
 		return err
@@ -50,10 +50,10 @@ func (d RestAPI) Generate() error {
 		return err
 	}
 	fhandler, err := os.OpenFile(filepath.Join(".", "handler.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer fhandler.Close()
 	if err != nil {
 		return err
 	}
+	defer fhandler.Close()
 	_, err = fhandler.Write(handler)
 	if err != nil {
 		return err
@@ -69,10 +69,10 @@ func (d RestAPI) Generate() error {
 		return err
 	}
 	fmain, err := os.OpenFile(filepath.Join("cmd", "main.go"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer fhandler.Close()
 	if err != nil {
 		return err
 	}
+	defer fhandler.Close()
 	_, err = fmain.Write(main)
 	if err != nil {
 		return err
